@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from .loggers import logger, formatter
 from .permissions import IsAuthorOrReadOnly, ReadOnly
-from posts.models import Post, Group
+from posts.models import Post, Group, User, Comment
 from .serializers import PostSerializer, GroupSerializer, CommentSerializer
 
 
@@ -31,7 +31,7 @@ class PostViewSet(viewsets.ModelViewSet):
         serializer = PostSerializer(
             data=request.data, context={'request': request})
         logger.debug(serializer)
-        if serializer.is_valid():
+        if serializer.is_valid() and isinstance(request.user, User):
             serializer.save(author=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -57,11 +57,42 @@ class CommentViewSet(viewsets.ModelViewSet):
         comments = post.comments
         return comments
 
+    # def list(self, request, *args, **kwargs):
+    #     queryset = self.filter_queryset(self.get_queryset())
+    #
+    #     page = self.paginate_queryset(queryset)
+    #     if page is not None:
+    #         serializer = self.get_serializer(page, many=True)
+    #         return Response(self.get_paginated_response(serializer.data), status=status.HTTP_200_OK)
+    #
+    #     serializer = self.get_serializer(queryset, many=True)
+    #     return Response(serializer.data)
+
     def create(self, request, *args, **kwargs):
         serializer = CommentSerializer(
             data=request.data, context={'request': request})
-        logger.debug(serializer)
+        # if serializer.is_valid() and isinstance(request.user, User):
         if serializer.is_valid():
             serializer.save(author=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, *args, **kwargs):
+        request.data['post'] = kwargs['post_id']
+        request.data['comment_id'] = kwargs['pk']
+        serializer = CommentSerializer(
+            data=request.data, context={'request': request})
+        if serializer.is_valid() and isinstance(request.user, User):
+            serializer.save(author=request.user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def partial_update(self, request, *args, **kwargs):
+        request.data['post'] = kwargs['post_id']
+        request.data['comment_id'] = kwargs['pk']
+        serializer = CommentSerializer(
+            data=request.data, context={'request': request})
+        if serializer.is_valid() and isinstance(request.user, User):
+            serializer.save(author=request.user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

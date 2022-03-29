@@ -27,9 +27,9 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Comment
-#
-#
-# class FollowSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Follow
-#         fields = ('author', 'user')
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Follow
+        fields = ('author', 'user')

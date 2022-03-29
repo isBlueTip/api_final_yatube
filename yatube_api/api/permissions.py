@@ -11,24 +11,9 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
         # Read permissions are allowed to any request,
         # so we'll always allow GET, HEAD or OPTIONS requests.
         if request.method in permissions.SAFE_METHODS:
+            # or request.user.is_authenticated
             return True
-
-        # Instance must have an attribute named `author`.
         return obj.author == request.user
-
-# ********************************************************************************************
-
-
-class OwnerOrReadOnly(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-        return (
-                request.method in permissions.SAFE_METHODS
-                or request.user.is_authenticated
-            )
-
-    def has_object_permission(self, request, view, obj):
-        return obj.owner == request.user
 
 
 class ReadOnly(permissions.BasePermission):

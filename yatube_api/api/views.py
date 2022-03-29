@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets, status
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .loggers import logger, formatter
@@ -30,16 +31,10 @@ class PostViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = PostSerializer(
             data=request.data, context={'request': request})
-        logger.debug(serializer)
         if serializer.is_valid() and isinstance(request.user, User):
             serializer.save(author=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class GroupViewSet(viewsets.ReadOnlyModelViewSet):
@@ -47,7 +42,7 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = [ReadOnly, ]
+    # permission_classes = [IsAuthenticated, ReadOnly]
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -62,17 +57,6 @@ class CommentViewSet(viewsets.ModelViewSet):
         comments = post.comments
         return comments
 
-    # def list(self, request, *args, **kwargs):
-    #     queryset = self.filter_queryset(self.get_queryset())
-    #
-    #     page = self.paginate_queryset(queryset)
-    #     if page is not None:
-    #         serializer = self.get_serializer(page, many=True)
-    #         return Response(self.get_paginated_response(serializer.data), status=status.HTTP_200_OK)
-    #
-    #     serializer = self.get_serializer(queryset, many=True)
-    #     return Response(serializer.data)
-
     def create(self, request, *args, **kwargs):
         serializer = CommentSerializer(
             data=request.data, context={'request': request})
@@ -80,24 +64,4 @@ class CommentViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             serializer.save(author=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def update(self, request, *args, **kwargs):
-        request.data['post'] = kwargs['post_id']
-        request.data['comment_id'] = kwargs['pk']
-        serializer = CommentSerializer(
-            data=request.data, context={'request': request})
-        if serializer.is_valid() and isinstance(request.user, User):
-            serializer.save(author=request.user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def partial_update(self, request, *args, **kwargs):
-        request.data['post'] = kwargs['post_id']
-        request.data['comment_id'] = kwargs['pk']
-        serializer = CommentSerializer(
-            data=request.data, context={'request': request})
-        if serializer.is_valid() and isinstance(request.user, User):
-            serializer.save(author=request.user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -3,7 +3,7 @@ from rest_framework import permissions
 
 class IsAuthorOrReadOnly(permissions.BasePermission):
     """
-    Object-level permission to only allow owners of an object to edit it.
+    Object-level permission to only allow authors of an object to edit it.
     Assumes the model instance has an `author` attribute.
     """
 

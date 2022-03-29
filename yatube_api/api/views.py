@@ -42,7 +42,11 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    # permission_classes = [IsAuthenticated, ReadOnly]
+
+    def get_permissions(self):
+        if self.action == 'retrieve' or self.action == 'list':
+            return (ReadOnly(),)
+        return super().get_permissions()
 
 
 class CommentViewSet(viewsets.ModelViewSet):

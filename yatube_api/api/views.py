@@ -4,13 +4,14 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets, status
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from posts.models import Post, Group, User, Comment, Follow
 from .loggers import logger, formatter
 from .permissions import IsAuthorOrReadOnly, ReadOnly
-from posts.models import Post, Group, User, Comment
-from .serializers import PostSerializer, GroupSerializer, CommentSerializer
+from .serializers import (
+    PostSerializer, GroupSerializer, CommentSerializer, FollowSerializer
+)
 
 
 LOG_NAME = 'views.log'
@@ -64,8 +65,58 @@ class CommentViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = CommentSerializer(
             data=request.data, context={'request': request})
-        # if serializer.is_valid() and isinstance(request.user, User):
         if serializer.is_valid():
             serializer.save(author=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FollowViewSet(viewsets.ModelViewSet):
+    """Viewset to work with Follow model."""
+
+    serializer_class = FollowSerializer
+    # queryset = Follow.objects.all()
+
+    def get_queryset(self):
+        user = self.request.user
+        follow = Follow.objects.filter(user=user)
+        logger.debug('follow = ')
+        logger.debug(follow)
+        return follow
+
+    # def list(self, request, *args, **kwargs):
+    #     # user = request.user
+    #
+    #     # serializer = FollowSerializer(
+    #     #     data=request.data, context={'request': request})
+    #
+    #     serializer = self.get_serializer()
+    #
+    #     logger.debug('serializer = ')
+    #     logger.debug(serializer)
+    #     if serializer.is_valid():
+    #         return Response(serializer.data, status=status.HTTP_200_OK)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # def list(self, request, *args, **kwargs):
+    #     logger.debug('request.data = ')
+    #     logger.debug(request.data)
+    #     logger.debug(type(request.data))
+    #
+    #     queryset = self.filter_queryset(self.get_queryset())
+    #
+    #     page = self.paginate_queryset(queryset)
+    #     if page is not None:
+    #         serializer = self.get_serializer(page, many=True)
+    #
+    #         logger.debug('serializer = ')
+    #         logger.debug(serializer)
+    #         logger.debug(type(serializer))
+    #         return self.get_paginated_response(serializer.data)
+    #
+    #     serializer = self.get_serializer(queryset, many=True)
+    #
+    #     logger.debug('serializer = ')
+    #     logger.debug(serializer)
+    #     logger.debug(type(serializer))
+    #     return Response(serializer.data)

@@ -50,6 +50,7 @@ class Follow(models.Model):
         on_delete=models.CASCADE,
         related_name='follower',
         verbose_name='кто подписался',
+
     )
     following = models.ForeignKey(
         User,
@@ -57,3 +58,6 @@ class Follow(models.Model):
         related_name='following',
         verbose_name='на кого подписка',
     )
+
+    class Meta:
+        unique_together = ['following', 'user']

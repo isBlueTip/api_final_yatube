@@ -31,6 +31,8 @@ class PostViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
 
     def create(self, request, *args, **kwargs):
+        logger.debug('request.data = ')
+        logger.debug(request.data)
         serializer = PostSerializer(
             data=request.data, context={'request': request})
         if serializer.is_valid() and isinstance(request.user, User):
@@ -75,10 +77,10 @@ class CommentViewSet(viewsets.ModelViewSet):
 class FollowViewSet(viewsets.ModelViewSet):
     """Viewset to work with Follow model."""
 
+    # queryset = Follow.objects.all()
     serializer_class = FollowSerializer
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('following__username',)
-    # queryset = Follow.objects.all()
 
     def get_queryset(self):
         user = self.request.user
@@ -87,39 +89,32 @@ class FollowViewSet(viewsets.ModelViewSet):
         logger.debug(follow)
         return follow
 
-    # def list(self, request, *args, **kwargs):
-    #     # user = request.user
+    # def perform_create(self, serializer):
+    #     # try:
+    #     #     following_id = get_object_or_404(User, pk=self.request.data['following'])
+    #     # except KeyError:
+    #     #     following_id = 0
+    #     # logger.debug('following_id = ')
+    #     # logger.debug(following_id)
+    #     logger.debug('self.request')
+    #     logger.debug(self.request.context)
     #
-    #     # serializer = FollowSerializer(
-    #     #     data=request.data, context={'request': request})
+    #     serializer = FollowSerializer(user=self.request.user, context={'request': self.request})
+    #     # serializer.save(user=self.request.user, context={'request': self.request})
     #
-    #     serializer = self.get_serializer()
-    #
-    #     logger.debug('serializer = ')
-    #     logger.debug(serializer)
-    #     if serializer.is_valid():
-    #         return Response(serializer.data, status=status.HTTP_200_OK)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #     logger.debug('serializer.is_valid = ')
+    #     logger.debug(serializer.is_valid)
 
-    # def list(self, request, *args, **kwargs):
-    #     logger.debug('request.data = ')
-    #     logger.debug(request.data)
-    #     logger.debug(type(request.data))
-    #
-    #     queryset = self.filter_queryset(self.get_queryset())
-    #
-    #     page = self.paginate_queryset(queryset)
-    #     if page is not None:
-    #         serializer = self.get_serializer(page, many=True)
-    #
-    #         logger.debug('serializer = ')
-    #         logger.debug(serializer)
-    #         logger.debug(type(serializer))
-    #         return self.get_paginated_response(serializer.data)
-    #
-    #     serializer = self.get_serializer(queryset, many=True)
-    #
-    #     logger.debug('serializer = ')
-    #     logger.debug(serializer)
-    #     logger.debug(type(serializer))
-    #     return Response(serializer.data)
+    def create(self, request, *args, **kwargs):
+        serializer = FollowSerializer(
+            data=request.data,
+            context={'request': request}
+        )
+        logger.debug(serializer.initial_data)
+        logger.debug(serializer.is_valid())
+        if serializer.is_valid():
+        # if serializer.is_valid() and isinstance(request.user, User):
+            logger.debug(serializer.validated_data)
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

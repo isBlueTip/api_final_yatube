@@ -26,8 +26,8 @@ class Migration(migrations.Migration):
             name='Follow',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('following', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='following', to=settings.AUTH_USER_MODEL, verbose_name='на кого подписка')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='follower', to=settings.AUTH_USER_MODEL, verbose_name='кто подписался')),
+                ('following', models.ForeignKey(blank=False, on_delete=django.db.models.deletion.CASCADE, related_name='following', to=settings.AUTH_USER_MODEL, verbose_name='на кого подписка')),
+                ('user', models.ForeignKey(blank=False, on_delete=django.db.models.deletion.CASCADE, related_name='follower', to=settings.AUTH_USER_MODEL, verbose_name='кто подписался')),
             ],
         ),
         migrations.AddField(

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_framework.relations import SlugRelatedField, StringRelatedField
+from rest_framework.relations import SlugRelatedField
 
 
 from posts.models import Post, Group, Comment, Follow, User

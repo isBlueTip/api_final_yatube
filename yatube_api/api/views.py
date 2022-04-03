@@ -7,7 +7,7 @@ from rest_framework import viewsets, status, filters
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
-from posts.models import Post, Group, User, Comment, Follow
+from posts.models import Post, Group, User, Follow
 from .loggers import logger, formatter
 from .permissions import IsAuthorOrReadOnly, ReadOnly
 from .serializers import (
@@ -90,11 +90,16 @@ class FollowViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-            following = User.objects.get(username=request.data.get('following'))
+            following = User.objects.get(
+                username=request.data.get('following')
+            )
         except User.DoesNotExist:
             following = 0
         if not isinstance(following, User):
-            return Response('Following must be an existing username', status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                'Following must be an existing username',
+                status=status.HTTP_400_BAD_REQUEST
+            )
         serializer = FollowSerializer(
             data=request.data,
             context={'request': request}

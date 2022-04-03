@@ -77,7 +77,6 @@ class CommentViewSet(viewsets.ModelViewSet):
 class FollowViewSet(viewsets.ModelViewSet):
     """Viewset to work with Follow model."""
 
-    # queryset = Follow.objects.all()
     serializer_class = FollowSerializer
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     search_fields = ('following__username',)
@@ -89,31 +88,20 @@ class FollowViewSet(viewsets.ModelViewSet):
         logger.debug(follow)
         return follow
 
-    # def perform_create(self, serializer):
-    #     # try:
-    #     #     following_id = get_object_or_404(User, pk=self.request.data['following'])
-    #     # except KeyError:
-    #     #     following_id = 0
-    #     # logger.debug('following_id = ')
-    #     # logger.debug(following_id)
-    #     logger.debug('self.request')
-    #     logger.debug(self.request.context)
-    #
-    #     serializer = FollowSerializer(user=self.request.user, context={'request': self.request})
-    #     # serializer.save(user=self.request.user, context={'request': self.request})
-    #
-    #     logger.debug('serializer.is_valid = ')
-    #     logger.debug(serializer.is_valid)
-
     def create(self, request, *args, **kwargs):
+        try:
+            following = User.objects.get(username=request.data.get('following'))
+        except User.DoesNotExist:
+            following = 0
+        if not isinstance(following, User):
+            return Response('Following must be an existing username', status=status.HTTP_400_BAD_REQUEST)
         serializer = FollowSerializer(
             data=request.data,
             context={'request': request}
         )
-        logger.debug(serializer.initial_data)
-        logger.debug(serializer.is_valid())
-        if serializer.is_valid():
-        # if serializer.is_valid() and isinstance(request.user, User):
+
+        if serializer.is_valid() and (following != request.user):
+            # can't follow myself
             logger.debug(serializer.validated_data)
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)

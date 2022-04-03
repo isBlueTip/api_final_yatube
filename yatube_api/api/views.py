@@ -8,7 +8,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
 from posts.models import Post, Group, User, Follow
-from .loggers import logger, formatter
+from ..loggers import logger, formatter
 from .permissions import IsAuthorOrReadOnly, ReadOnly
 from .serializers import (
     PostSerializer, GroupSerializer, CommentSerializer, FollowSerializer

@@ -40,7 +40,7 @@ class Comment(models.Model):
     post = models.ForeignKey(
         Post, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
-    pub_date = models.DateTimeField(  # TODO replace 'pub_name' with 'created' fieldname and in initial migration
+    created = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
 
 

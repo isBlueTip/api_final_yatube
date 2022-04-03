@@ -8,7 +8,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
 from posts.models import Post, Group, User, Follow
-from ..loggers import logger, formatter
+from loggers import logger, formatter
 from .permissions import IsAuthorOrReadOnly, ReadOnly
 from .serializers import (
     PostSerializer, GroupSerializer, CommentSerializer, FollowSerializer
@@ -31,8 +31,6 @@ class PostViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
 
     def create(self, request, *args, **kwargs):
-        logger.debug('request.data = ')
-        logger.debug(request.data)
         serializer = PostSerializer(
             data=request.data, context={'request': request})
         if serializer.is_valid() and isinstance(request.user, User):
@@ -84,29 +82,15 @@ class FollowViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         follow = Follow.objects.filter(user=user)
-        logger.debug('follow = ')
-        logger.debug(follow)
         return follow
 
     def create(self, request, *args, **kwargs):
-        try:
-            following = User.objects.get(
-                username=request.data.get('following')
-            )
-        except User.DoesNotExist:
-            following = 0
-        if not isinstance(following, User):
-            return Response(
-                'Following must be an existing username',
-                status=status.HTTP_400_BAD_REQUEST
-            )
         serializer = FollowSerializer(
             data=request.data,
             context={'request': request}
         )
 
-        if serializer.is_valid() and (following != request.user):
-            # can't follow myself
+        if serializer.is_valid():
             logger.debug(serializer.validated_data)
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)

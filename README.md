@@ -1,68 +1,50 @@
-# Yatube API
+# REST API для соцсети Yatube
 
+## Описание
 
-### Описание
+REST API для взаимодействия с соцсетью Yatube. Позволяет получить доступ к ресурсам Yatube с любого устройства, используя авторизацию через JWT. Для доступа к моделям применены вьюсеты
 
-Учебный проект создания API для проекта Yatube. Позволяет получить доступ к ресурсам Yatube помимо браузера.
+## Установка проекта локально
 
+В папке склонированного репозитория выполните:
 
-### Установка
-
-Клонировать репозиторий и перейти в него в командной строке:
+```bash
+cd yatube_api
+python3 manage.py makemigrations
+python3 manage.py migrate
+python3 manage.py createsuperuser --email admin@admin.com --username admin -v 3
 ```
-git clone https://github.com/isBlueTip/api_final_yatube.git
+Задайте пароль для суперпользователя. Логин суперпользователя - admin.  
+Запустите тестовый сервер командой
+```Bash
+python3 manage.py runserver
 ```
+Для проверки работоспособности, перейдите на /admin
 
-```
-cd kittygram
-```
 
-Cоздать и активировать виртуальное окружение:
+## Заполнение БД тестовыми данными
 
-```
-python3 -m venv env
-```
-
-```
-source venv/bin/activate
-```
-
-Установить зависимости из файла requirements.txt:
-
-```
-python3 -m pip install --upgrade pip
-```
-
-```
-pip install -r requirements.txt
+```bash
+python3 manage.py shell
+from django.contrib.contenttypes.models import ContentType
+ContentType.objects.all().delete()
+exit()
+python3 manage.py loaddata ../fixtures/fixtures.json
 ```
 
-Выполнить миграции:
+## Документация API
 
-```
-python3 yatube_api/manage.py migrate
-```
+Доступна по адресу /redoc при развёрнутом проекте
 
-Запустить проект:
+## Стек
 
-```
-python3 yatube_api/manage.py runserver
-```
+Django, Django REST framework, JWT, Redoc, SQL
 
-### Примеры
+## Автор
 
-```POST /api/v1/post/```: добавление новой публикации в коллекцию публикаций. Анонимные запросы запрещены.
+Семён Егоров  
 
-```GET /api/v1/post/{id}/```: получение публикации по id.
 
-```PATCH /api/v1/post/{id}/```: частичное обновление публикации по id. Обновить публикацию может только автор публикации. Анонимные запросы запрещены.
-
-```GET /api/v1/post/{post_id}/comments/```: получение всех комментариев к публикации.
-
-```POST /api/v1/post/{post_id}/comments/```: добавление нового комментария к публикации. Анонимные запросы запрещены.
-
-```GET /api/v1/groups/```: получение списка доступных сообществ.
-
-```POST /api/v1/follow/```: подписка пользователя от имени которого сделан запрос на пользователя переданного в теле запроса. Анонимные запросы запрещены.
-
-```POST api/v1/jwt/create/```: получение JWT-токена.
+[LinkedIn](https://www.linkedin.com/in/simonegorov/)  
+[Email](rhinorofl@gmail.com)  
+[Telegram](https://t.me/SamePersoon)
